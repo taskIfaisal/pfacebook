@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sulap Kartu PIN</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: black;
+            font-size: 0;
+            overflow: hidden;
+        }
+
+        header,
+        footer {
+            position: fixed;
+            width: 100%;
+            left: 0;
+            z-index: 1000;
+        }
+
+        header {
+            top: 0;
+        }
+
+        footer {
+            bottom: 0;
+        }
+
+        header img,
+        footer img {
+            width: 100%;
+            display: block;
+        }
+
+        .content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background-color: rgb(224, 223, 223);
+            padding-top: 138px;
+            padding-bottom: 200px;
+        }
+
+        .scrollable img {
+            width: 100%;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .scrollable img:last-child {
+            margin-bottom: 5px;
+        }
+
+        .keypad-container {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            text-align: center;
+        }
+
+        .pin-display {
+            font-size: 24px;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .keypad button {
+            font-size: 22px;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: #444;
+            color: white;
+            cursor: pointer;
+        }
+
+        .keypad button:active {
+            background: #222;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="header">
+        <img src="img/atas.jpg" alt="Gambar Atas" />
+    </header>
+
+    <div class="content" id="content">
+        <div class="scrollable">
+            <img src="img/tengah.jpg" alt="Tengah" />
+            <img src="img/tengah1.jpg" alt="Tengah 1" />
+            <img src="img/tengah2.jpg" alt="Tengah 2" />
+            <img src="img/tengah3.jpg" alt="Tengah 3" id="tengah3" />
+            <img src="img/tengah4.jpg" alt="Tengah 4" />
+            <img src="img/tengah5.jpg" alt="Tengah 5" />
+            <img src="img/tengah6.jpg" alt="Tengah 6" />
+        </div>
+    </div>
+
+    <footer id="footer">
+        <img src="img/bawah.jpg" alt="Gambar Bawah" />
+    </footer>
+
+    <div class="keypad-container">
+        <div class="pin-display" id="pinDisplay">PIN: </div>
+        <div class="keypad">
+            <button onclick="tekanAngka('1')">1</button>
+            <button onclick="tekanAngka('2')">2</button>
+            <button onclick="tekanAngka('3')">3</button>
+            <button onclick="tekanAngka('4')">4</button>
+            <button onclick="tekanAngka('5')">5</button>
+            <button onclick="tekanAngka('6')">6</button>
+            <button onclick="tekanAngka('7')">7</button>
+            <button onclick="tekanAngka('8')">8</button>
+            <button onclick="tekanAngka('9')">9</button>
+            <button onclick="hapus()">⌫</button>
+            <button onclick="tekanAngka('0')">0</button>
+            <button onclick="resetPIN()">C</button>
+        </div>
+    </div>
+
+    <script>
+        function updatePadding() {
+            const header = document.getElementById("header");
+            const footer = document.getElementById("footer");
+            const content = document.getElementById("content");
+
+            const headerHeight = header.offsetHeight;
+            const footerHeight = footer.offsetHeight;
+
+            content.style.paddingTop = `${headerHeight + 5}px`;
+            content.style.paddingBottom = `${footerHeight + 70}px`;
+        }
+
+        window.addEventListener("load", updatePadding);
+        window.addEventListener("resize", updatePadding);
+
+        // Variabel untuk menyimpan PIN
+        let pin = "";
+
+        function tekanAngka(angka) {
+            if (pin.length >= 6) return;
+            pin += angka;
+            tampilkanPIN();
+            if (pin.length === 6) {
+                prosesPIN();
+            }
+        }
+
+        function hapus() {
+            pin = pin.slice(0, -1);
+            tampilkanPIN();
+        }
+
+        function resetPIN() {
+            pin = "";
+            tampilkanPIN();
+        }
+
+        function tampilkanPIN() {
+            document.getElementById("pinDisplay").textContent = "PIN: " + pin;
+        }
+
+        function prosesPIN() {
+            const angka = pin.slice(0, 2);
+            const simbol = pin.charAt(2);
+            const simbolMap = {
+                '1': 'skop',
+                '2': 'hati',
+                '3': 'keriting',
+                '4': 'wajik'
+            };
+
+            if (!simbolMap[simbol]) return;
+
+            const namaFile = `${angka}_${simbolMap[simbol]}.jpg`;
+            const path = `img/prediksi/${namaFile}`;
+            document.getElementById("tengah3").src = path;
+        }
+
+        // Optional: Sembunyikan header/footer saat scroll
+        let lastScrollTop = 0;
+        document.getElementById("content").addEventListener("scroll", function () {
+            const st = this.scrollTop;
+            const header = document.getElementById("header");
+            const footer = document.getElementById("footer");
+
+            if (st > lastScrollTop) {
+                header.style.transform = "translateY(-100%)";
+                footer.style.transform = "translateY(100%)";
+            } else {
+                header.style.transform = "translateY(0)";
+                footer.style.transform = "translateY(0)";
+            }
+            lastScrollTop = st;
+        });
+    </script>
+
+</body>
+
+</html>

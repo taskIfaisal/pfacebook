@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <title>Facebook</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="iPhone Kamera" />
+    <link rel="apple-touch-icon" href="./img/icon-192x192.png" />
+    <link rel="apple-touch-startup-image" href="./img/icon-512x512.png" />
+    <link rel="icon" type="image/png" href="./img/icon-192x192.png" />
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: rgb(224, 223, 223);
+            -webkit-overflow-scrolling: touch;
+            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        header,
+        footer {
+            position: fixed;
+            width: 100%;
+            left: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            background-color: #fff;
+        }
+
+        header {
+            top: 0;
+            padding-top: env(safe-area-inset-top);
+            height: auto;
+            /* Pastikan header menyesuaikan tinggi gambar */
+        }
+
+        footer {
+            bottom: 0;
+            padding-bottom: env(safe-area-inset-bottom);
+            height: auto;
+            /* Pastikan footer menyesuaikan tinggi gambar */
+        }
+
+        header img,
+        footer img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .content {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            background-color: rgb(224, 223, 223);
+            padding-top: calc(138px + env(safe-area-inset-top));
+            /* Sesuaikan nilai ini */
+            padding-bottom: calc(138px + env(safe-area-inset-bottom));
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .scrollable {
+            padding-top: 0;
+            /* Tambahkan jika perlu */
+        }
+
+        .scrollable img {
+            width: 100%;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .scrollable img:last-child {
+            margin-bottom: 5px;
+        }
+
+        .input-pin {
+            position: fixed;
+            bottom: calc(10px + env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+        }
+
+        .input-pin input {
+            font-size: 18px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .prediksi-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            /* Untuk posisi atas */
+        }
+
+        .teks-prediksi {
+            position: absolute;
+            top: 20px;
+            /* Pixel pasti */
+            left: 50%;
+            transform: translateX(-50%);
+            /* properti lainnya tetap */
+        }
+
+        .teks-prediksi {
+            position: absolute;
+            top: 60%;
+            /* Naikkan nilai persentase ini */
+            left: 58%;
+            transform: translateX(-50%);
+            /* Hanya mempengaruhi horizontal */
+            color: rgb(110, 110, 110);
+            font-size: clamp(14px, 4vw, 24px);
+            font-weight: bold;
+            text-align: center;
+            width: auto;
+            max-width: 80%;
+            padding: 4px 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+            pointer-events: none;
+
+            /* Tambahkan ini untuk debug */
+            border: 0px solid red;
+            /* Hanya untuk testing */
+            z-index: 100;
+            /* Pastikan di atas elemen lain */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .teks-prediksi {
+                top: 58%;
+                font-size: clamp(12px, 3.5vw, 20px);
+                padding: 3px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .teks-prediksi {
+                top: 56%;
+                font-size: clamp(10px, 3vw, 16px);
+                padding: 2px 8px;
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="header">
+        <img src="img/atas.jpg" alt="Gambar Atas" />
+    </header>
+
+    <div class="content" id="content">
+        <div class="scrollable">
+            <img src="img/tengah.jpg" alt="Tengah" />
+            <img src="img/tengah1.jpg" alt="Tengah 1" />
+            <img src="img/tengah2.jpg" alt="Tengah 2" />
+            <div class="prediksi-container">
+                <img src="img/tengah3.jpg" alt="Tengah 3" id="tengah3" />
+                <div class="teks-prediksi" id="teksPrediksi"></div>
+            </div>
+            <img src="img/tengah4.jpg" alt="Tengah 4" />
+            <img src="img/tengah5.jpg" alt="Tengah 5" />
+            <img src="img/tengah6.jpg" alt="Tengah 6" />
+        </div>
+    </div>
+
+    <footer id="footer">
+        <img src="img/bawah.jpg" alt="Gambar Bawah" />
+    </footer>
+
+    <div class="input-pin">
+        <input type="hidden" id="pinInput" maxlength="6" placeholder="Masukkan PIN (6 digit)" />
+    </div>
+
+    <script>
+        function updatePadding() {
+            const header = document.getElementById("header");
+            const footer = document.getElementById("footer");
+            const content = document.getElementById("content");
+
+            // Tunggu gambar header selesai dimuat
+            const headerImg = header.querySelector('img');
+            headerImg.onload = function () {
+                const headerHeight = header.offsetHeight;
+                const footerHeight = footer.offsetHeight;
+
+                // Tambahkan margin ekstra 5px untuk memastikan tidak terpotong
+                content.style.paddingTop = `calc(${headerHeight}px + env(safe-area-inset-top) + 5px)`;
+                content.style.paddingBottom = `calc(${footerHeight}px + env(safe-area-inset-bottom))`;
+            };
+
+            // Jika gambar sudah dimuat (cache)
+            if (headerImg.complete) {
+                headerImg.onload();
+            }
+        }
+
+        window.addEventListener("load", updatePadding);
+        window.addEventListener("resize", updatePadding);
+
+        function updateTeksPrediksi(inputText) {
+            const teksPrediksi = document.getElementById("teksPrediksi");
+            teksPrediksi.innerText = inputText;
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCEmMaofxL1_ciX0wQn2X9DRM_WZFP-q9M",
+            authDomain: "magic--control.firebaseapp.com",
+            databaseURL: "https://magic--control-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "magic--control",
+            storageBucket: "magic--control.appspot.com",
+            messagingSenderId: "1040027506886",
+            appId: "1:1040027506886:web:e70e085b3d57f0e765dfc7",
+            measurementId: "G-0KSWHKL03D"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        db.ref("pesan").on("value", function (snapshot) {
+            const data = snapshot.val();
+            if (data && data.isi) {
+                document.getElementById("pinInput").value = data.isi;
+                updateTeksPrediksi(data.isi);
+            }
+        });
+
+        document.getElementById("pinInput").addEventListener("input", function () {
+            const inputText = this.value;
+            updateTeksPrediksi(inputText);
+            db.ref("pesan").set({ isi: inputText });
+        });
+
+        let lastScrollTop = 0;
+        document.getElementById("content").addEventListener("scroll", function () {
+            const st = this.scrollTop;
+            const header = document.getElementById("header");
+            const footer = document.getElementById("footer");
+
+            if (st > lastScrollTop) {
+                header.style.transform = "translateY(-100%)";
+                footer.style.transform = "translateY(100%)";
+            } else {
+                header.style.transform = "translateY(0)";
+                footer.style.transform = "translateY(0)";
+            }
+            lastScrollTop = st;
+        });
+    </script>
+
+</body>
+
+</html>
